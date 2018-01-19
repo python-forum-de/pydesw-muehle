@@ -9,13 +9,13 @@ SQUARE_INDICES = range(MIN_INDEX, MAX_INDEX + 1)
 
 COLORS = ('white', 'black')
 
-class Field(namedtuple('Field', 'square_name, index, player')):
-    def __new__(cls, square_name, index, player=None):
+class Field(namedtuple('Field', 'square_name, index, owner')):
+    def __new__(cls, square_name, index, owner=None):
         if square_name not in SQUARE_NAMES:
             raise ValueError('Invalid square name')
         if not MIN_INDEX <= index <= MAX_INDEX:
             raise ValueError('Field index out of range')
-        return tuple.__new__(cls, (square_name, index, player))
+        return tuple.__new__(cls, (square_name, index, owner))
  
 class Board(object):
     def __init__(self):
@@ -29,7 +29,7 @@ class Board(object):
         if not player:
             return self.fields.copy()
         return {
-            square: [f for f in self.fields[square] if f.player == player]
+            square: [f for f in self.fields[square] if f.owner == player]
             for square in SQUARE_NAMES
         }
 
@@ -37,10 +37,10 @@ class Board(object):
         # Get original field to avoid cheating
         new_field = self.fields[new_field.square_name][new_field.index]
 
-        if new_field.player:
+        if new_field.owner:
             msg = 'New field already owned by {}'
-            raise ValueError(msg.format(new_field.player.name))
-        new_field = new_field._replace(player=player)
+            raise ValueError(msg.format(new_field.owner.name))
+        new_field = new_field._replace(owner=player)
         self.fields[new_field.square_name][new_field.index] = new_field
 
         # if self.is_in_mill(self.fields, new_field):
@@ -50,24 +50,25 @@ class Board(object):
         if field:
             square_fields = self.fields[field.square_name]
             square_index = SQUARE_NAMES.index(field.square_name)
-            player = field.player
+            player = field.owner
 
             candidates = [ self.fields[SQUARE_NAMES[square_index-i]][field.index]
                            for i in (-1,1) if 0 <= square_index-i <= 2]
             candidates.extend([  square_fields[(field.index + i) % 8] for i in (-1, 1)])
 
-            fields = { square: [] for square in SQUARE_NAMES }
-            [fields[field.square_name].append(field) for field in candidates if not field.player]
-            return { square: fields[square] for square in fields }
+            return {
+                square: [field for field in candidates if not field.owner and field.square_name == square]
+                for square in SQUARE_NAMES
+            }
         return {
-            square: [field for field in self.fields[square] if not field.player]
+            square: [field for field in self.fields[square] if not field.owner]
             for square in SQUARE_NAMES
         }
 
     def is_in_mill(self, field):
         # check if a mill has been created
         square_fields = self.fields[field.square_name]
-        player = field.player
+        player = field.owner
 
         if (field.index % 2) == 0:
             candidates = [
@@ -80,7 +81,7 @@ class Board(object):
                 [square_fields[(field.index + i) % 8] for i in (-1, 0, 1)]
             ]
         for candidate in candidates:
-            if all(field.player == player for field in candidate):
+            if all(field.owner == player for field in candidate):
                 return True
         return False
 
@@ -91,7 +92,11 @@ class Player(object):
         self.name = name
         self.color = color
     
-    def make_move(self, board, field):
+    def make_move(self, board):
+        # Use a random field for testing
+        square_name = choice(SQUARE_NAMES)
+        index = choice(SQUARE_INDICES)
+        field = Field(square_name, index, self)
         board.move_piece(self, new_field=field)
 
     def __repr__(self):
@@ -99,17 +104,10 @@ class Player(object):
             type(self).__name__, self.name, self.color
         )
 
-if __name__  == '__main__':
-
+def main():
     board = Board()
     walter = Player('Walter', 'white')
-    print(walter)
+    walter.make_move(board)    
 
-    field = Field('outer', 4, walter)
-    print(field)
-    walter.make_move(board, field)
-    
-    field = Field('outer', 3, walter)
-    walter.make_move(board, field)
-    print(board.get_allowed_fields(field))
-    print(board.get_all_fields(walter))
+if __name__  == '__main__':
+    main()
