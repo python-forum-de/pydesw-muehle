@@ -52,9 +52,9 @@ class Board(object):
             square_index = SQUARE_NAMES.index(field.square_name)
             player = field.owner
 
-            candidates = [ self.fields[SQUARE_NAMES[square_index-i]][field.index]
+            candidates = [self.fields[SQUARE_NAMES[square_index-i]][field.index]
                            for i in (-1,1) if 0 <= square_index-i <= 2]
-            candidates.extend([  square_fields[(field.index + i) % 8] for i in (-1, 1)])
+            candidates.extend([square_fields[(field.index + i) % 8] for i in (-1, 1)])
 
             return {
                 square: [field for field in candidates if not field.owner and field.square_name == square]
