@@ -25,7 +25,9 @@ class Board(object):
         }
         
     def get_all_fields(self, player=None):
-        # get all fields (24 pieces) or those of the player
+        """
+        Return the fields owned by player, or all fields if player is omitted.
+        """
         if not player:
             return self.fields.copy()
         return {
@@ -34,7 +36,7 @@ class Board(object):
         }
 
     def move_piece(self, player, old_field=None, new_field=None):
-        # Get original field to avoid cheating
+        # Use the original field to avoid cheating
         new_field = self.fields[new_field.square_name][new_field.index]
 
         if new_field.owner:
@@ -42,11 +44,13 @@ class Board(object):
             raise ValueError(msg.format(new_field.owner.name))
         new_field = new_field._replace(owner=player)
         self.fields[new_field.square_name][new_field.index] = new_field
-
-        # if self.is_in_mill(self.fields, new_field):
+        # TODO: Check if piece was set into a mill
     
     def get_allowed_fields(self, field=None):
-        # get all unoccupied fields or the neighboring fields from the field
+        """
+        Return all fields where a piece on the given field can move to.
+        If field is omitted then return all fields having no owner.
+        """
         if field:
             square_fields = self.fields[field.square_name]
             square_index = SQUARE_NAMES.index(field.square_name)
@@ -70,7 +74,9 @@ class Board(object):
         }
 
     def is_in_mill(self, field):
-        # check if a mill has been created
+        """
+        Return True if field is inside a mill, otherwise False.
+        """
         square_fields = self.fields[field.square_name]
         player = field.owner
 
