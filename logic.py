@@ -16,7 +16,10 @@ class Field(namedtuple('Field', 'square_name, index, owner')):
         if not MIN_INDEX <= index <= MAX_INDEX:
             raise ValueError('Field index out of range')
         return tuple.__new__(cls, (square_name, index, owner))
- 
+
+    def __eq__(self, other):
+        return self.square_name == other.square_name and self.index == other.index and self.owner == other.owner
+         
 class Board(object):
     def __init__(self):
         self.fields = {
