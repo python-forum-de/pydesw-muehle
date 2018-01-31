@@ -7,7 +7,7 @@ class TestBoard(unittest.TestCase):
         board = logic.Board()
         walter = logic.Player('Walter', 'white')
 
-        for i in in range(3):
+        for i in range(3):
             board.move_piece(walter, new_field=logic.Field('outer', i, walter))
 
         for field in board.get_all_fields(walter)['outer']:
