@@ -27,9 +27,9 @@ class TestBoard(unittest.TestCase):
         
         allowed = board.get_allowed_fields(logic.Field('mid', 1, walter))
         
-        self.assertIn(logic.Field('mid', 0, walter), allowed['mid'])
-        self.assertIn(logic.Field('mid', 2, walter), allowed['mid'])
-        self.assertNotIn(logic.Field('inner', 1, peter), allowed['inner'])
+        self.assertIn(logic.Field('mid', 0), allowed['mid'])
+        self.assertIn(logic.Field('mid', 2), allowed['mid'])
+        self.assertNotIn(logic.Field('outer', 1), allowed['outer'])
 
 
 if __name__ == '__main__':
